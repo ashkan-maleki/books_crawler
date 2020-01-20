@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import os
+import glob
+
 from time import sleep
 
 from scrapy import Spider
@@ -16,7 +19,10 @@ def product_info(response, value):
 class BooksSpider(Spider):
     name = 'books'
     allowed_domains = ['books.toscrape.com']
-    start_urls = ['http://books.toscrape.com']
+    # start_urls = ['http://books.toscrape.com']
+
+    def __init__(self, category):
+        self.start_urls = [category]
 
     def parse(self, response):
         books = response.xpath('//h3/a/@href').extract()
@@ -65,3 +71,7 @@ class BooksSpider(Spider):
             'availability': availability,
             'number_of_reviews': number_of_reviews,
         }
+
+    def close(self, reason):
+        csv_file = max(glob.iglob('*.csv'), key=os.path.getatime)
+        os.rename(csv_file, 'foobar.csv')
